@@ -19,7 +19,7 @@ public abstract class AbstractLabelView : MonoBehaviour
 
     void Awake()
     {
-        PlayerCharacter = GameObject.FindGameObjectWithTag(RaidSettings.PLAYER_TAG).GetComponent<IPlayerView>();
+        PlayerCharacter = GameObject.FindGameObjectWithTag(RaidSettings.PLAYER_TAG)?.GetComponent<IPlayerView>();
         Label = gameObject.GetComponentInChildren<TextMesh>();
 
         StartCoroutine(PollingDistanceForCulling());

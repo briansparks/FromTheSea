@@ -9,4 +9,7 @@ public class HomeSceneSettings : MonoBehaviour
     [Header("Raid Map Settings")]
     public Color RAID_LOCATION_ACTIVE_COLOR;
     public Color RAID_LOCATION_DEFAULT_COLOR;
+
+    [Header("Orchestrator Settings")]
+    public float COROUTINE_DISPLAY_OVERLAY_TIME;
 }

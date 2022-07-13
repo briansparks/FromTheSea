@@ -7,6 +7,7 @@ public class EventManager : MonoBehaviour
     private Dictionary<string, UnityEvent<int>> intEventDictionary;
     private Dictionary<string, UnityEvent<string>> stringEventDictionary;
     private Dictionary<string, UnityEvent<Vector3>> vector3EventDictionary;
+    private Dictionary<string, UnityEvent<CharacterSpawnRequest>> characterSpawnRequestDictionary;
 
     private static EventManager eventManager;
 
@@ -34,13 +35,11 @@ public class EventManager : MonoBehaviour
 
     private void Init()
     {
-        if (eventDictionary == null)
-        {
-            eventDictionary = new Dictionary<string, UnityEvent>();
-            intEventDictionary = new Dictionary<string, UnityEvent<int>>();
-            stringEventDictionary = new Dictionary<string, UnityEvent<string>>();
-            vector3EventDictionary = new Dictionary<string, UnityEvent<Vector3>>();
-        }
+        eventDictionary = new Dictionary<string, UnityEvent>();
+        intEventDictionary = new Dictionary<string, UnityEvent<int>>();
+        stringEventDictionary = new Dictionary<string, UnityEvent<string>>();
+        vector3EventDictionary = new Dictionary<string, UnityEvent<Vector3>>();
+        characterSpawnRequestDictionary = new Dictionary<string, UnityEvent<CharacterSpawnRequest>>();
     }
 
     public static void StartListening(string eventName, UnityAction listener)
@@ -95,6 +94,20 @@ public class EventManager : MonoBehaviour
             thisEvent = new Vector3UnityEvent();
             thisEvent.AddListener(listener);
             instance.vector3EventDictionary.Add(eventName, thisEvent);
+        }
+    }
+
+    public static void StartListening(string eventName, UnityAction<CharacterSpawnRequest> listener)
+    {
+        if (instance.characterSpawnRequestDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new CharacterSpawnRequestUnityEvent();
+            thisEvent.AddListener(listener);
+            instance.characterSpawnRequestDictionary.Add(eventName, thisEvent);
         }
     }
     public static void StopListening(string eventName, UnityAction<int> listener)
@@ -155,6 +168,14 @@ public class EventManager : MonoBehaviour
             thisEvent.Invoke(param);
         }
     }
+
+    public static void TriggerEvent(string eventName, CharacterSpawnRequest param)
+    {
+        if (instance.characterSpawnRequestDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.Invoke(param);
+        }
+    }
     public void UITriggerEvent(string eventName)
     {
         TriggerEvent(eventName);
@@ -176,6 +197,12 @@ public class StringUnityEvent : UnityEvent<string>
 
 [System.Serializable]
 public class Vector3UnityEvent : UnityEvent<Vector3>
+{
+
+}
+
+[System.Serializable]
+public class CharacterSpawnRequestUnityEvent : UnityEvent<CharacterSpawnRequest>
 {
 
 }
