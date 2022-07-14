@@ -16,25 +16,19 @@ public class RaidSetupPanelView : MonoBehaviour
     private GridLayoutGroup availableTroopsGrid;
 
     [SerializeField]
+    private GridLayoutGroup assignedCrewGrid;
+
+    [SerializeField]
     private GameObject availableTroopGridItemPrefab;
+
+    [SerializeField]
+    public GameObject raidMapPanel;
     private void Start()
     {
-        boatView = SpawnBoat();
+        boatView = RaidSetupZone.GetComponentInChildren<BoatView>();
         availableTroops = CharacterManager.GetAvailableTroopData();
 
         PopulateAvailableTroopsList(availableTroops);
-    }
-    private BoatView SpawnBoat()
-    {
-        if (RaidSetupZone.TrySpawnBoat(out var boatView))
-        {
-            return boatView;
-        }
-        else
-        {
-            // Display error or try again?
-            return null;
-        }
     }
 
     private void PopulateAvailableTroopsList(IEnumerable<CharacterData> availableTroopData)
@@ -47,11 +41,24 @@ public class RaidSetupPanelView : MonoBehaviour
             var troopButton = gridItemInstance.GetComponentInChildren<Button>();
 
             var selectedTroop = availableTroop;
-            troopButton.onClick.AddListener(() => { SpawnTroop(selectedTroop); });
+            troopButton.onClick.AddListener(() => { AssignTroop(gridItemInstance, selectedTroop); });
 
             var tmp = gridItemInstance.GetComponentInChildren<TextMeshProUGUI>();
             tmp.text = availableTroop.Name;
         }
+    }
+
+    private void AssignTroop(GameObject availableTroopItemInstance, CharacterData characterData)
+    {
+        SpawnTroop(characterData);
+
+        var gridItemInstance = GameObject.Instantiate(availableTroopGridItemPrefab);
+        var tmp = gridItemInstance.GetComponentInChildren<TextMeshProUGUI>();
+        tmp.text = characterData.Name;
+
+        gridItemInstance.transform.SetParent(assignedCrewGrid.transform);
+
+        Destroy(availableTroopItemInstance);
     }
     private void SpawnTroop(CharacterData characterData)
     {
@@ -76,6 +83,35 @@ public class RaidSetupPanelView : MonoBehaviour
         else
         {
             Debug.LogError($"No open seat found, unable to spawn character!", this);
+        }
+    }
+
+    public void OnResetButtonClick()
+    {
+        DestroyTroopEntriesInGrid(assignedCrewGrid);
+        DestroyTroopEntriesInGrid(availableTroopsGrid);
+
+        var npcViews = boatView.GetComponentsInChildren<NPCView>();
+        foreach (var npcView in npcViews)
+        {
+            EventManager.TriggerEvent("DestroyCharacter", npcView.Id);
+        }
+
+        boatView.ResetAllSeats();
+        PopulateAvailableTroopsList(availableTroops);
+    }
+
+    public void OnBeginRaidClick()
+    {
+        raidMapPanel.SetActive(true);
+    }
+
+    private void DestroyTroopEntriesInGrid(GridLayoutGroup grid)
+    {
+        var troopEntries = grid.GetComponentsInChildren<TroopEntry>();
+        foreach (var entry in troopEntries)
+        {
+            Destroy(entry.gameObject);
         }
     }
 }

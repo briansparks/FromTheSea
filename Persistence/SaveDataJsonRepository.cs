@@ -13,4 +13,9 @@ public class SaveDataJsonRepository : AbstractJsonFileRepository<SavedGame>, ISa
     {
         return DeserialzeJsonFileAtPath(PathToSavedGames + $"{name}");
     }
+
+    public void SaveGame(SavedGame gameToSave, string fileName)
+    {
+        SaveJsonFile(gameToSave, PathToSavedGames, fileName);
+    }
 }

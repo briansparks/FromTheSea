@@ -8,4 +8,6 @@ public class SavedGame
     public DateTime DateTime;
     public int CurrentInGameWeek;
     public List<CharacterData> AvailableTroops;
+    public BoatData ActiveBoat;
+    public List<BoatData> InactiveBoats;
 }

@@ -7,10 +7,12 @@ public interface INPCView
     Action CurrentAction { get; set; }
     void SitDownOnSeat();
     GameObject AssignedSeat { get; set; }
+    GameObject Instance { get; set; }
 }
 public class NPCView : MonoBehaviour, INPCView
 {
     public Guid Id { get; set; }
+    public GameObject Instance { get; set; }
     public Action CurrentAction { get; set; }
     public GameObject AssignedSeat { get; set; }
 
@@ -20,6 +22,7 @@ public class NPCView : MonoBehaviour, INPCView
     // Start is called before the first frame update
     void Awake()
     {
+        Instance = gameObject;
         animator = gameObject.GetComponentInParent<Animator>();
 
         DisableRagdoll();

@@ -7,11 +7,12 @@ public class HomeOrchestrator : MonoBehaviour
     [SerializeField]
     private HomeSceneSettings homeSceneSettings;
 
+    public HomeManager HomeManager;
     public HomeMenuView HomeMenuView;
     public GameObject GarrisonPanel;
     public GameObject BlacksmithPanel;
     public GameObject WorkshopPanel;
-
+    public GameObject RaidSetupPanel;
 
     // Start is called before the first frame update
     void Start()
@@ -24,11 +25,22 @@ public class HomeOrchestrator : MonoBehaviour
 
         var blacksmithAction = new UnityAction(() => { StartCoroutine(DisplayOverlayAfterDelay(BlacksmithPanel)); });
         EventManager.StartListening("CameraReachedBlacksmith", blacksmithAction);
+
+        var raidSetupAction = new UnityAction(() => { StartCoroutine(DisplayOverlayAfterDelay(RaidSetupPanel)); });
+        EventManager.StartListening("CameraReachedRaidSetup", raidSetupAction);
+
+        var startRaidAction = new UnityAction<string>((sceneToLoad) => { HandleRaidStart(sceneToLoad); });
+        EventManager.StartListening("StartRaid", startRaidAction);
     }
 
     private IEnumerator DisplayOverlayAfterDelay(GameObject displayOverlayObj)
     {
         yield return new WaitForSeconds(homeSceneSettings.COROUTINE_DISPLAY_OVERLAY_TIME);
         HomeMenuView.EnterStationView(displayOverlayObj);
+    }
+
+    private void HandleRaidStart(string sceneToLoad)
+    {
+        HomeManager.HandleRaidStart(sceneToLoad);
     }
 }

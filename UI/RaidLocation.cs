@@ -7,12 +7,12 @@ public class RaidLocation : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public RawImage locationImage;
     public GameObject raidDetailsPanel;
     public bool IsSelected;
+    public string SceneToLoad;
 
     public HomeSceneSettings Settings;
-
     public void OnStartRaidButtonClick()
     {
-        Debug.Log("Start raid btn clicked!");
+        OnStartRaidClick();
     }
 
     public void OnCloseButtonClick()
@@ -44,5 +44,10 @@ public class RaidLocation : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             locationImage.color = Settings.RAID_LOCATION_DEFAULT_COLOR;
         }
+    }
+
+    private void OnStartRaidClick()
+    {
+        EventManager.TriggerEvent("StartRaid", SceneToLoad);
     }
 }

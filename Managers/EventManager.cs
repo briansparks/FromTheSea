@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine;
+using System;
+
 public class EventManager : MonoBehaviour
 {
     private Dictionary<string, UnityEvent> eventDictionary;
@@ -8,6 +10,8 @@ public class EventManager : MonoBehaviour
     private Dictionary<string, UnityEvent<string>> stringEventDictionary;
     private Dictionary<string, UnityEvent<Vector3>> vector3EventDictionary;
     private Dictionary<string, UnityEvent<CharacterSpawnRequest>> characterSpawnRequestDictionary;
+    private Dictionary<string, UnityEvent<Guid>> guidDictionary;
+
 
     private static EventManager eventManager;
 
@@ -40,6 +44,7 @@ public class EventManager : MonoBehaviour
         stringEventDictionary = new Dictionary<string, UnityEvent<string>>();
         vector3EventDictionary = new Dictionary<string, UnityEvent<Vector3>>();
         characterSpawnRequestDictionary = new Dictionary<string, UnityEvent<CharacterSpawnRequest>>();
+        guidDictionary = new Dictionary<string, UnityEvent<Guid>>();
     }
 
     public static void StartListening(string eventName, UnityAction listener)
@@ -53,6 +58,20 @@ public class EventManager : MonoBehaviour
             thisEvent = new UnityEvent();
             thisEvent.AddListener(listener);
             instance.eventDictionary.Add(eventName, thisEvent);
+        }
+    }
+
+    public static void StartListening(string eventName, UnityAction<Guid> listener)
+    {
+        if (instance.guidDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new GuidUnityEvent();
+            thisEvent.AddListener(listener);
+            instance.guidDictionary.Add(eventName, thisEvent);
         }
     }
 
@@ -145,6 +164,14 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public static void TriggerEvent(string eventName, Guid param)
+    {
+        if (instance.guidDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.Invoke(param);
+        }
+    }
+
     public static void TriggerEvent(string eventName, Vector3 param)
     {
         if (instance.vector3EventDictionary.TryGetValue(eventName, out var thisEvent))
@@ -184,6 +211,12 @@ public class EventManager : MonoBehaviour
 
 [System.Serializable]
 public class IntUnityEvent : UnityEvent<int>
+{
+
+}
+
+[System.Serializable]
+public class GuidUnityEvent : UnityEvent<Guid>
 {
 
 }

@@ -6,14 +6,18 @@ public class HomeMenuView : MonoBehaviour
     public GameObject Workshop;
     public GameObject Blacksmith;
     public GameObject Garrison;
+    public GameObject RaidSetup;
 
     public CinemachineSmoothPath WorkshopDollyTrack;
     public CinemachineSmoothPath BlacksmithDollyTrack;
     public CinemachineSmoothPath GarrisonDollyTrack;
+    public CinemachineSmoothPath RaidSetupDollyTrack;
+
     public CinemachineDollyCart DollyCart;
     public CinemachineVirtualCamera WorkshopVirtualCamera;
     public CinemachineVirtualCamera BlacksmithVirtualCamera;
     public CinemachineVirtualCamera GarrisonVirtualCamera;
+    public CinemachineVirtualCamera RaidSetupVirtualCamera;
 
     public HomeSceneSettings Settings;
     public GameObject HomeMenuPanel;
@@ -54,6 +58,16 @@ public class HomeMenuView : MonoBehaviour
         HideMainMenu();
     }
 
+    public void OnRaidButtonClick()
+    {
+        var eventEmitter = RaidSetupDollyTrack.GetComponent<DollyTrackEventEmitter>();
+        eventEmitter.enabled = true;
+
+        ResestDollyCart(RaidSetupDollyTrack);
+        ResetVirtualCamera(RaidSetupVirtualCamera, RaidSetup.transform);
+        HideMainMenu();
+    }
+
     public void OnBackButtonClick()
     {
         SetDollyCartToDefaults();
@@ -76,11 +90,13 @@ public class HomeMenuView : MonoBehaviour
         WorkshopDollyTrack.GetComponent<DollyTrackEventEmitter>().ResetToDefaults();
         BlacksmithDollyTrack.GetComponent<DollyTrackEventEmitter>().ResetToDefaults();
         GarrisonDollyTrack.GetComponent<DollyTrackEventEmitter>().ResetToDefaults();
+        RaidSetupDollyTrack.GetComponent<DollyTrackEventEmitter>().ResetToDefaults();
     }
     private void SetDollyCartToDefaults()
     {
         DollyCart.m_Position = 0;
         DollyCart.m_Speed = 0;
+        // TODO: this should be a config
         DollyCart.transform.position = new Vector3(166.912155f, 26.9616795f, 71.6189423f);
     }
     private void ResestDollyCart(CinemachineSmoothPath targetDollyTrack)
@@ -101,6 +117,7 @@ public class HomeMenuView : MonoBehaviour
         WorkshopVirtualCamera.Priority = 0;
         BlacksmithVirtualCamera.Priority = 0;
         GarrisonVirtualCamera.Priority = 0;
+        RaidSetupVirtualCamera.Priority = 0;
     }
     private void DisplaySelectedStationMenu()
     {

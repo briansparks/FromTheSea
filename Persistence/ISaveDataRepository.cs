@@ -3,6 +3,7 @@ using UnityEngine;
 
 public interface ISaveDataRepository
 {
-    public SavedGame GetSavedGameByName(string name);
-    public IEnumerable<SavedGame> GetAllSavedGames();
+    SavedGame GetSavedGameByName(string name);
+    IEnumerable<SavedGame> GetAllSavedGames();
+    void SaveGame(SavedGame gameToSave, string fileName);
 }

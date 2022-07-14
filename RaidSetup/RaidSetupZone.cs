@@ -3,18 +3,12 @@ using UnityEngine;
 
 public class RaidSetupZone : MonoBehaviour
 {
-    public Vector3 FaeringSpawnPosition;
-    public Vector3 KarviSpawnPosition;
-    public Vector3 DrakkarSpawnPosition;
-
-    public GameObject FaeringPrefab;
-
-    public bool TrySpawnBoat(out BoatView boatView)
+    public bool TrySpawnBoat(GameObject boatPrefab, Vector3 spawnPosition, out BoatView boatView)
     {
         try
         {
-            boatView = GameObject.Instantiate(FaeringPrefab, gameObject.transform, false).GetComponent<BoatView>();
-            boatView.gameObject.transform.localPosition = FaeringSpawnPosition;
+            boatView = GameObject.Instantiate(boatPrefab, gameObject.transform, false).GetComponent<BoatView>();
+            boatView.gameObject.transform.localPosition = spawnPosition;
 
             return true;
         }

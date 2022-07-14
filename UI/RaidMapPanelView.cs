@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RaidMap : MonoBehaviour
+public class RaidMapPanelView : MonoBehaviour
 {
     private RaidLocation[] raidLocations { get; set; }
 

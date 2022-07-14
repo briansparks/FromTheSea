@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
@@ -51,7 +52,7 @@ public class CharacterManager : MonoBehaviour
                 characterPrefab, 
                 characterSpawnRequest.Parent
             );
-
+           
             spawnedCharacterControllers.Add(npcController);
 
             return true;
@@ -60,6 +61,24 @@ public class CharacterManager : MonoBehaviour
         {
             Debug.LogError($"Failed to create character: ${characterSpawnRequest.CharacterData.Id}! {ex}");
             npcController = null;
+            return false;
+        }
+    }
+
+    public bool TryDestroyCharacter(Guid id)
+    {
+        try
+        {
+            var npcController = spawnedCharacterControllers.First(x => x.Model.Id == id);
+
+            Destroy(npcController.View.Instance);
+            spawnedCharacterControllers.Remove(npcController);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to destroy character {id}! {ex}", this);
             return false;
         }
     }

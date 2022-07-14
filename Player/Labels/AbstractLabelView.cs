@@ -3,10 +3,9 @@ using UnityEngine;
 
 public abstract class AbstractLabelView : MonoBehaviour
 {
-    public RaidSettings RaidSettings;
     protected TextMesh Label { get; set; }
 
-    protected IPlayerView PlayerCharacter { get; set; }
+    protected GameObject PlayerObject { get; set; }
 
     protected abstract float CULLING_DISTANCE { get; }
 
@@ -19,7 +18,7 @@ public abstract class AbstractLabelView : MonoBehaviour
 
     void Awake()
     {
-        PlayerCharacter = GameObject.FindGameObjectWithTag(RaidSettings.PLAYER_TAG)?.GetComponent<IPlayerView>();
+        PlayerObject = GameObject.FindGameObjectWithTag(Constants.PLAYER_TAG);
         Label = gameObject.GetComponentInChildren<TextMesh>();
 
         StartCoroutine(PollingDistanceForCulling());
@@ -27,12 +26,12 @@ public abstract class AbstractLabelView : MonoBehaviour
 
     protected void RotateLabelToFacePlayer()
     {
-        RotateYandZAxis(Quaternion.LookRotation(PlayerCharacter.Instance.transform.position - transform.position));
+        RotateYandZAxis(Quaternion.LookRotation(PlayerObject.transform.position - transform.position));
     }
 
     protected bool RenderIfWithinCullingDistance()
     {
-        if (Vector3.Distance(PlayerCharacter.Instance.transform.position, gameObject.transform.parent.transform.position) < CULLING_DISTANCE)
+        if (PlayerObject != null && Vector3.Distance(PlayerObject.transform.position, gameObject.transform.parent.transform.position) < CULLING_DISTANCE)
         {
             Label.gameObject.SetActive(true);
             return true;
@@ -58,7 +57,7 @@ public abstract class AbstractLabelView : MonoBehaviour
         while (true)
         {
             RenderIfWithinCullingDistance();
-            yield return new WaitForSeconds(RaidSettings.LABEL_POLLING_CULLING_CHECK_IN_SECONDS);
+            yield return new WaitForSeconds(Constants.LABEL_CULLING_POLL_TIME);
         }
     }
 }

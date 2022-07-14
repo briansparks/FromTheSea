@@ -1,6 +1,6 @@
 public class NameLabelView : AbstractLabelView
 {
-    protected override float CULLING_DISTANCE => RaidSettings.NAME_LABEL_CULLING_DISTANCE;
+    protected override float CULLING_DISTANCE => Constants.LABEL_CULLING_DISTANCE;
 
     // Update is called once per frame
     void Update()

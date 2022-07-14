@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,8 +9,15 @@ public class CharacterOrchestrator : MonoBehaviour
     {
         var spawnCharacterAction = new UnityAction<CharacterSpawnRequest>((spawnRequest) => HandleCharacterSpawnRequest(spawnRequest));
         EventManager.StartListening("SpawnCharacter", spawnCharacterAction);
+
+        var destroyCharacterAction = new UnityAction<Guid>((id) => HandleDestroyCharacterRequest(id));
+        EventManager.StartListening("DestroyCharacter", destroyCharacterAction);
     }
 
+    private void HandleDestroyCharacterRequest(Guid id)
+    {
+        CharacterManager.TryDestroyCharacter(id);
+    }
     private void HandleCharacterSpawnRequest(CharacterSpawnRequest spawnRequest)
     {
         var successfullySpawnCharacter = CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);

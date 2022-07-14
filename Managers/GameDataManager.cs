@@ -55,6 +55,20 @@ public class GameDataManager : MonoBehaviour, IGameDataManager
         }
     }
 
+    public bool TrySaveGame(SavedGame gameToSave, string fileName)
+    {
+        try
+        {
+            saveDataRepository.SaveGame(gameToSave, fileName);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to save game! {ex}", this);
+            return false;
+        }
+    }
+
     public SavedGame GetCurrentlyLoadedSave()
     {
         return currentyLoadedSave;
