@@ -1,52 +1,60 @@
+using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HomeManager : MonoBehaviour
+public class HomeManager : MonoBehaviour, IManager
 {
     public GameDataManager GameDataManager;
+    public CharacterManager CharacterManager;
+    public BoatManager BoatManager;
     public RaidSetupZone RaidSetupZone;
+
+    public string PathToBoatPrefabs = "Boats/";
 
     public Vector3 FaeringSpawnPosition;
     public Vector3 KarviSpawnPosition;
     public Vector3 DrakkarSpawnPosition;
 
-    public string PathToBoatPrefabs = "Boats/";
+    private int currentInGameWeek;
 
-    // Start is called before the first frame update
-    void Start()
+    public void Initialize()
     {
         var currentSave = GameDataManager.GetCurrentlyLoadedSave();
-        SpawnBoat(currentSave.ActiveBoat.PrefabName);
+        currentInGameWeek = currentSave.CurrentInGameWeek;
+
+        SpawnActiveBoatInRaidZone();
     }
-
-    private BoatView SpawnBoat(string prefabName)
-    {
-        var fullPath = PathToBoatPrefabs + prefabName;
-        var boatPrefab = Resources.Load<GameObject>(fullPath);
-
-        if (RaidSetupZone.TrySpawnBoat(boatPrefab, FaeringSpawnPosition, out var boatView))
-        {
-            return boatView;
-        }
-        else
-        {
-            // Display error or try again?
-            return null;
-        }
-    }
-
-    // TODO: need to sync current save with current data and save to file
-    public void HandleRaidStart(string sceneToLoad)
+    public void HandleRaidStart(RaidLocationDto raidLocation)
     {
         var currentSave = GameDataManager.GetCurrentlyLoadedSave();
-        var gameToSave = new SavedGame();
+
+        var activeRaidCharacters = CharacterManager.GetActiveRaidCharacters();
+
+        var activeRaid = new ActiveRaidData()
+        {
+            SceneName = raidLocation.SceneName,
+            LocationName = raidLocation.LocationName,
+            TroopAssignments = activeRaidCharacters.ToList()
+        };
+
+        var gameToSave = new SavedGame()
+        {
+            Name = currentSave.Name,
+            DateTime = DateTime.Now,
+            CurrentInGameWeek = GetCurrentInGameWeek(),
+            AvailableTroops = CharacterManager.GetAvailableTroopData(),
+            ActiveBoatId = BoatManager.GetActiveBoat().Id,
+            AvailableBoats = BoatManager.GetAvailableBoatsData().ToList(),
+            ActiveRaid = activeRaid
+        };
 
         GameDataManager.TrySaveGame(gameToSave, "test");
-        StartCoroutine(LoadSceneAsync(sceneToLoad));
+        StartCoroutine(LoadSceneAsync(activeRaid.SceneName));
     }
 
-    IEnumerator LoadSceneAsync(string sceneToLoad)
+    private IEnumerator LoadSceneAsync(string sceneToLoad)
     {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneToLoad);
 
@@ -55,5 +63,27 @@ public class HomeManager : MonoBehaviour
         {
             yield return null;
         }
+    }
+
+    private void SpawnActiveBoatInRaidZone()
+    {
+        var raidSetupZone = GameObject.FindObjectOfType<RaidSetupZone>();
+        var activeBoat = BoatManager.GetActiveBoat();
+
+        var fullPath = PathToBoatPrefabs + activeBoat.PrefabName;
+        var boatPrefab = Resources.Load<GameObject>(fullPath);
+
+        BoatManager.TrySpawnBoat(boatPrefab, FaeringSpawnPosition, raidSetupZone.transform, out var boatView);
+        boatView.transform.rotation = raidSetupZone.ShipSpawnPositionAndRotation.transform.rotation;
+    }
+
+    public int GetCurrentInGameWeek()
+    {
+        return currentInGameWeek;
+    }
+
+    public void IncrementCurrentInGameWeek()
+    {
+        currentInGameWeek += 1;
     }
 }

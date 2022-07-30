@@ -29,4 +29,14 @@ public static class GameObjectExtensions
         var allComponentsInChildren = gameObject.GetComponentsInChildren<T>();
         return allComponentsInChildren.Where(c => c.gameObject.layer == layer);
     }
+
+    public static bool ReachedDestinationTarget(this GameObject gameObject, Vector3 target, float distanceBuffer)
+    {
+        var result = false;
+
+        if (Vector3.Distance(gameObject.transform.position, target) < distanceBuffer)
+            result = true;
+
+        return result;
+    }
 }

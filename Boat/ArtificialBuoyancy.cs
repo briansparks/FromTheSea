@@ -14,7 +14,7 @@ public class ArtificialBuoyancy : MonoBehaviour
         startRotation = transform.rotation;
     }
 
-    void LateUpdate()
+    void Update()
     {
         BobUpAndDown();
         SwaySideToSide();

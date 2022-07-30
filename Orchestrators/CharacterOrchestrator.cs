@@ -10,6 +10,9 @@ public class CharacterOrchestrator : MonoBehaviour
         var spawnCharacterAction = new UnityAction<CharacterSpawnRequest>((spawnRequest) => HandleCharacterSpawnRequest(spawnRequest));
         EventManager.StartListening("SpawnCharacter", spawnCharacterAction);
 
+        var spawnRaidCharacterAction = new UnityAction<ActiveRaidCharacterSpawnRequest>((spawnRequest) => HandleActiveRaidCharacterSpawnRequest(spawnRequest));
+        EventManager.StartListening("SpawnActiveRaidCharacter", spawnRaidCharacterAction);
+
         var destroyCharacterAction = new UnityAction<Guid>((id) => HandleDestroyCharacterRequest(id));
         EventManager.StartListening("DestroyCharacter", destroyCharacterAction);
     }
@@ -20,15 +23,20 @@ public class CharacterOrchestrator : MonoBehaviour
     }
     private void HandleCharacterSpawnRequest(CharacterSpawnRequest spawnRequest)
     {
-        var successfullySpawnCharacter = CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);
+        CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);
+    }
 
-        if (successfullySpawnCharacter)
+    private void HandleActiveRaidCharacterSpawnRequest(ActiveRaidCharacterSpawnRequest spawnRequest)
+    {
+        var successfullySpawnedCharacter = CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);
+
+        if (successfullySpawnedCharacter)
         {
-            if (spawnRequest.AssignedSeat != null)
-            {
-                npcController.AssignSeat(spawnRequest.AssignedSeat);
-                npcController.UpdateCurrentState(NPCEnums.CurrentState.Sitting);
-            }
+            npcController.AssignSeat(spawnRequest.AssignedSeat);
+            npcController.UpdateCurrentState(NPCEnums.CurrentState.Sitting);
+
+            var seatView = spawnRequest.AssignedSeat.GetComponent<SeatView>();
+            CharacterManager.AddActiveRaidTroopAssignment(spawnRequest.CharacterData.Id, seatView.GetId());
         }
     }
 }

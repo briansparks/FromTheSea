@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGameDataManager
+public interface IGameDataManager : IManager
 {
     bool TryGetSavedGameByName(string name, out SavedGame savedGame);
     bool TryGetAllSavedGames(out IEnumerable<SavedGame> savedGames);
@@ -16,7 +16,7 @@ public class GameDataManager : MonoBehaviour, IGameDataManager
 
     private SavedGame currentyLoadedSave;
 
-    void Awake()
+    public void Initialize()
     {
         saveDataRepository = SaveDataRepositoryGameObject.GetComponent<ISaveDataRepository>();
 

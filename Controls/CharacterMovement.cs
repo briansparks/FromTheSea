@@ -2,22 +2,21 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    private Rigidbody rigidbody;
+    private Rigidbody rb;
 
     public float speed = 3.0f;
 
     private void Start()
     {
-        rigidbody = GetComponentInParent<Rigidbody>();
+        rb = gameObject.GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
-        var direction = rigidbody.rotation * movement;
+        var direction = rb.rotation * movement;
 
-        rigidbody.MovePosition(rigidbody.position + direction * 20.0f * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + direction * 20.0f * Time.fixedDeltaTime);
     }
 }

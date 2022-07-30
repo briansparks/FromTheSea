@@ -1,25 +1,21 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public abstract class AbstractLabelView : MonoBehaviour
 {
-    protected TextMesh Label { get; set; }
+    protected TextMeshPro Label { get; set; }
 
     protected GameObject PlayerObject { get; set; }
 
     protected abstract float CULLING_DISTANCE { get; }
 
-    protected bool IsDisabled { get; set; }
-    public void SetDisabledState(bool state)
-    {
-        IsDisabled = state;
-        Label.gameObject.SetActive(!state);
-    }
+    protected bool IsLabelInRange { get; set; }
 
     void Awake()
     {
         PlayerObject = GameObject.FindGameObjectWithTag(Constants.PLAYER_TAG);
-        Label = gameObject.GetComponentInChildren<TextMesh>();
+        Label = gameObject.GetComponentInChildren<TextMeshPro>();
 
         StartCoroutine(PollingDistanceForCulling());
     }
@@ -29,9 +25,9 @@ public abstract class AbstractLabelView : MonoBehaviour
         RotateYandZAxis(Quaternion.LookRotation(PlayerObject.transform.position - transform.position));
     }
 
-    protected bool RenderIfWithinCullingDistance()
+    private bool RenderIfWithinCullingDistance()
     {
-        if (PlayerObject != null && Vector3.Distance(PlayerObject.transform.position, gameObject.transform.parent.transform.position) < CULLING_DISTANCE)
+        if (PlayerObject != null && Vector3.Distance(PlayerObject.transform.position, gameObject.transform.position) < CULLING_DISTANCE)
         {
             Label.gameObject.SetActive(true);
             return true;
@@ -41,7 +37,7 @@ public abstract class AbstractLabelView : MonoBehaviour
         return false;
     }
 
-    public void SetLabelText(string labelText)
+    protected void SetLabelText(string labelText)
     {
         Label.text = labelText;
     }
@@ -56,7 +52,7 @@ public abstract class AbstractLabelView : MonoBehaviour
     {
         while (true)
         {
-            RenderIfWithinCullingDistance();
+            IsLabelInRange = RenderIfWithinCullingDistance();
             yield return new WaitForSeconds(Constants.LABEL_CULLING_POLL_TIME);
         }
     }

@@ -12,11 +12,14 @@ public class CharacterFactory : ICharacterFactory
         var instance = GameObject.Instantiate(prefab, position, rotation);
         var npcView = instance.AddComponent<NPCView>();
 
-        var nameLabelView = instance.GetComponentInChildren<NameLabelView>();
+        //var nameLabelView = instance.GetComponentInChildren<NameLabelView>();
         //nameLabelView.SetLabelText(characterData.Name);
-        nameLabelView.enabled = false;
+        //nameLabelView.enabled = false;
 
-        instance.transform.SetParent(parent.transform);
+        if (parent != null)
+        {
+            instance.transform.SetParent(parent.transform);
+        }
 
         var npcModel = new NPCModel(characterData.Id);
         npcView.Id = characterData.Id;

@@ -5,7 +5,7 @@ public class NameLabelView : AbstractLabelView
     // Update is called once per frame
     void Update()
     {
-        if (Label.gameObject.activeInHierarchy && !IsDisabled)
+        if (Label.gameObject.activeInHierarchy && IsLabelInRange)
         {
             RotateLabelToFacePlayer();
         }

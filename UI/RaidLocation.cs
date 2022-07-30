@@ -7,7 +7,8 @@ public class RaidLocation : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public RawImage locationImage;
     public GameObject raidDetailsPanel;
     public bool IsSelected;
-    public string SceneToLoad;
+    public string SceneName;
+    public string LocationName;
 
     public HomeSceneSettings Settings;
     public void OnStartRaidButtonClick()
@@ -48,6 +49,8 @@ public class RaidLocation : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void OnStartRaidClick()
     {
-        EventManager.TriggerEvent("StartRaid", SceneToLoad);
+        var raidLocationDto = new RaidLocationDto() { LocationName = LocationName, SceneName = SceneName };
+
+        EventManager.TriggerEvent("StartRaid", raidLocationDto);
     }
 }

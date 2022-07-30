@@ -17,6 +17,7 @@ public class NPCView : MonoBehaviour, INPCView
     public GameObject AssignedSeat { get; set; }
 
 
+    private Rigidbody rb;
     private Animator animator;
 
     // Start is called before the first frame update
@@ -24,6 +25,8 @@ public class NPCView : MonoBehaviour, INPCView
     {
         Instance = gameObject;
         animator = gameObject.GetComponentInParent<Animator>();
+
+        rb = gameObject.GetComponent<Rigidbody>();
 
         DisableRagdoll();
     }
@@ -68,6 +71,15 @@ public class NPCView : MonoBehaviour, INPCView
         if (AssignedSeat != null)
         {
             gameObject.transform.position = AssignedSeat.transform.position;
+
+            //gameObject.AddComponent<FixedJoint>();
+            //var fixedJoin = gameObject.GetComponent<FixedJoint>();
+
+            //fixedJoin.connectedBody = AssignedSeat.gameObject.GetComponent<Rigidbody>();
+            //fixedJoin.breakForce = float.PositiveInfinity;
+
+            rb.freezeRotation = true;
+
             animator.SetTrigger("SitDown");
         }
         else

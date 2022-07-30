@@ -38,10 +38,10 @@ public abstract class AbstractJsonFileRepository<T> : MonoBehaviour where T : cl
 
     protected void SaveJsonFile(T obj, string filePath, string fileName)
     {
-        var json = JsonUtility.ToJson(obj);
+        var json = JsonConvert.SerializeObject(obj, Formatting.Indented);
 
         var fullFileName = fileName.EndsWith(".json") ? fileName : fileName + ".json";
 
-        File.WriteAllText(filePath + fullFileName, json);
+        File.WriteAllText(Application.dataPath + '/' + filePath + fullFileName, json);
     }
 }

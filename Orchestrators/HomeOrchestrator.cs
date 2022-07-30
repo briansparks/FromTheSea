@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -29,7 +30,7 @@ public class HomeOrchestrator : MonoBehaviour
         var raidSetupAction = new UnityAction(() => { StartCoroutine(DisplayOverlayAfterDelay(RaidSetupPanel)); });
         EventManager.StartListening("CameraReachedRaidSetup", raidSetupAction);
 
-        var startRaidAction = new UnityAction<string>((sceneToLoad) => { HandleRaidStart(sceneToLoad); });
+        var startRaidAction = new UnityAction<RaidLocationDto>((raidLocation) => { HandleRaidStart(raidLocation); });
         EventManager.StartListening("StartRaid", startRaidAction);
     }
 
@@ -39,8 +40,8 @@ public class HomeOrchestrator : MonoBehaviour
         HomeMenuView.EnterStationView(displayOverlayObj);
     }
 
-    private void HandleRaidStart(string sceneToLoad)
+    private void HandleRaidStart(RaidLocationDto raidLocation)
     {
-        HomeManager.HandleRaidStart(sceneToLoad);
+        HomeManager.HandleRaidStart(raidLocation);
     }
 }

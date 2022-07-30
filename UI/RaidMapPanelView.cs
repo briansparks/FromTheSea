@@ -30,4 +30,9 @@ public class RaidMapPanelView : MonoBehaviour
 
         selectedLocation.Display();
     }
+
+    public void OnBackButtonClick()
+    {
+        gameObject.SetActive(false);
+    }
 }

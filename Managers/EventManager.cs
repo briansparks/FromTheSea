@@ -3,41 +3,20 @@ using UnityEngine.Events;
 using UnityEngine;
 using System;
 
-public class EventManager : MonoBehaviour
+public class EventManager : MonoBehaviour, IManager
 {
     private Dictionary<string, UnityEvent> eventDictionary;
     private Dictionary<string, UnityEvent<int>> intEventDictionary;
     private Dictionary<string, UnityEvent<string>> stringEventDictionary;
     private Dictionary<string, UnityEvent<Vector3>> vector3EventDictionary;
     private Dictionary<string, UnityEvent<CharacterSpawnRequest>> characterSpawnRequestDictionary;
+    private Dictionary<string, UnityEvent<ActiveRaidCharacterSpawnRequest>> activeRaidCharacterSpawnRequestDictionary;
     private Dictionary<string, UnityEvent<Guid>> guidDictionary;
-
+    private Dictionary<string, UnityEvent<RaidLocationDto>> raidLocationDtoDictionary;
 
     private static EventManager eventManager;
 
-    public static EventManager instance
-    {
-        get
-        {
-            if (!eventManager)
-            {
-                eventManager = FindObjectOfType(typeof(EventManager)) as EventManager;
-
-                if (!eventManager)
-                {
-                    Debug.LogError("There must be one active EventManager script on a GameObject in the scene.");
-                }
-                else
-                {
-                    eventManager.Init();
-                }
-            }
-
-            return eventManager;
-        }
-    }
-
-    private void Init()
+    public void Initialize()
     {
         eventDictionary = new Dictionary<string, UnityEvent>();
         intEventDictionary = new Dictionary<string, UnityEvent<int>>();
@@ -45,6 +24,30 @@ public class EventManager : MonoBehaviour
         vector3EventDictionary = new Dictionary<string, UnityEvent<Vector3>>();
         characterSpawnRequestDictionary = new Dictionary<string, UnityEvent<CharacterSpawnRequest>>();
         guidDictionary = new Dictionary<string, UnityEvent<Guid>>();
+        activeRaidCharacterSpawnRequestDictionary = new Dictionary<string, UnityEvent<ActiveRaidCharacterSpawnRequest>>();
+        raidLocationDtoDictionary = new Dictionary<string, UnityEvent<RaidLocationDto>>();
+    }
+
+    public static EventManager instance
+    {
+        get
+        {
+            if (!eventManager)
+            {
+                eventManager = FindObjectOfType<EventManager>();
+
+                if (!eventManager)
+                {
+                    Debug.LogError("There must be one active EventManager script on a GameObject in the scene.");
+                }
+                else
+                {
+                    eventManager.Initialize();
+                }
+            }
+
+            return eventManager;
+        }
     }
 
     public static void StartListening(string eventName, UnityAction listener)
@@ -61,6 +64,19 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public static void StartListening(string eventName, UnityAction<RaidLocationDto> listener)
+    {
+        if (instance.raidLocationDtoDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new RaidLocationDtoUnityEvent();
+            thisEvent.AddListener(listener);
+            instance.raidLocationDtoDictionary.Add(eventName, thisEvent);
+        }
+    }
     public static void StartListening(string eventName, UnityAction<Guid> listener)
     {
         if (instance.guidDictionary.TryGetValue(eventName, out var thisEvent))
@@ -129,6 +145,20 @@ public class EventManager : MonoBehaviour
             instance.characterSpawnRequestDictionary.Add(eventName, thisEvent);
         }
     }
+
+    public static void StartListening(string eventName, UnityAction<ActiveRaidCharacterSpawnRequest> listener)
+    {
+        if (instance.activeRaidCharacterSpawnRequestDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new ActiveRaidCharacterSpawnRequestUnityEvent();
+            thisEvent.AddListener(listener);
+            instance.activeRaidCharacterSpawnRequestDictionary.Add(eventName, thisEvent);
+        }
+    }
     public static void StopListening(string eventName, UnityAction<int> listener)
     {
         if (eventManager == null)
@@ -180,6 +210,13 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    public static void TriggerEvent(string eventName, RaidLocationDto param)
+    {
+        if (instance.raidLocationDtoDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.Invoke(param);
+        }
+    }
     public static void TriggerEvent(string eventName, int param)
     {
         if (instance.intEventDictionary.TryGetValue(eventName, out var thisEvent))
@@ -199,6 +236,14 @@ public class EventManager : MonoBehaviour
     public static void TriggerEvent(string eventName, CharacterSpawnRequest param)
     {
         if (instance.characterSpawnRequestDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.Invoke(param);
+        }
+    }
+
+    public static void TriggerEvent(string eventName, ActiveRaidCharacterSpawnRequest param)
+    {
+        if (instance.activeRaidCharacterSpawnRequestDictionary.TryGetValue(eventName, out var thisEvent))
         {
             thisEvent.Invoke(param);
         }
@@ -236,6 +281,18 @@ public class Vector3UnityEvent : UnityEvent<Vector3>
 
 [System.Serializable]
 public class CharacterSpawnRequestUnityEvent : UnityEvent<CharacterSpawnRequest>
+{
+
+}
+
+[System.Serializable]
+public class ActiveRaidCharacterSpawnRequestUnityEvent : UnityEvent<ActiveRaidCharacterSpawnRequest>
+{
+
+}
+
+[System.Serializable]
+public class RaidLocationDtoUnityEvent : UnityEvent<RaidLocationDto>
 {
 
 }

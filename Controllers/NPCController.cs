@@ -42,6 +42,15 @@ public class NPCController : INPCController
         View.AssignedSeat = seat;
     }
 
+    public Guid? GetAssignedSeatId()
+    {
+        if (View.AssignedSeat != null)
+        {
+            return View.AssignedSeat.GetComponent<SeatView>().GetId();
+        }
+
+        return null;
+    }
     private void InitializeStateSideEffectsDictionary()
     {
         stateSideEffectsDict = new Dictionary<CurrentState, Action>();

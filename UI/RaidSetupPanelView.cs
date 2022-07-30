@@ -67,7 +67,7 @@ public class RaidSetupPanelView : MonoBehaviour
             var spawnPos = seatView.GetCharacterSpawnPosition();
             var spawnRot = seatView.GetCharacterSpawnRotation();
 
-            var characterSpawnRequest = new CharacterSpawnRequest() 
+            var activeRaidCharacterSpawnRequest = new ActiveRaidCharacterSpawnRequest() 
             { 
                 CharacterData = characterData, 
                 Parent = boatView.gameObject, 
@@ -78,7 +78,7 @@ public class RaidSetupPanelView : MonoBehaviour
 
             seatView.IsOccupied = true;
 
-            EventManager.TriggerEvent("SpawnCharacter", characterSpawnRequest);
+            EventManager.TriggerEvent("SpawnActiveRaidCharacter", activeRaidCharacterSpawnRequest);
         }
         else
         {
@@ -96,6 +96,8 @@ public class RaidSetupPanelView : MonoBehaviour
         {
             EventManager.TriggerEvent("DestroyCharacter", npcView.Id);
         }
+
+        CharacterManager.ResetActiveRaidCharacters();
 
         boatView.ResetAllSeats();
         PopulateAvailableTroopsList(availableTroops);

@@ -6,6 +6,4 @@ public class CharacterSpawnRequest
     public Vector3 Position;
     public Quaternion Rotation;
     public GameObject Parent;
-    public string DefaultAnimationState;
-    public GameObject AssignedSeat;
 }
