@@ -17,11 +17,32 @@ public class RaidOrchestrator : MonoBehaviour
 
         var exitShipEvent = new UnityAction(HandleExitShip);
         EventManager.StartListening("ExitShip", exitShipEvent);
+
+        var lootCartBeingPushedEvent = new UnityAction(HandleLootCartBeingPushed);
+        EventManager.StartListening("LootCartBeingPushed", lootCartBeingPushedEvent);
+
+        var lootCartReachedDestinationEvent = new UnityAction(HandleLootCartReachedDestination);
+        EventManager.StartListening("LootCartReachedDestination", lootCartReachedDestinationEvent);
+
+        var lootCartLoadedEvent = new UnityAction(HandleLootCartLoaded);
+        EventManager.StartListening("LootCartLoaded", lootCartLoadedEvent);
+
+        var playerEnteredShipEvent = new UnityAction(HandlePlayerEnterShip);
+        EventManager.StartListening("PlayerEnteredShip", playerEnteredShipEvent);
     }
 
     private void HandleExitShip()
     {
         raidManager.OnExitShip();
+    }
+
+    private void HandlePlayerEnterShip()
+    {
+        raidManager.OnPlayerEnterShip();
+    }
+    private void HandleLootCartReachedDestination()
+    {
+        raidManager.OnLootCartReachedDestination();
     }
 
     private void HandleBoatInRangeOfDock()
@@ -33,9 +54,18 @@ public class RaidOrchestrator : MonoBehaviour
         raidManager.OnBoatDocked();
     }
 
-    private void HandleLootCartLoaded()
+    private void HandleLootCartBeingPushed()
+    {
+        raidManager.OnLootCartPushed();
+    }
+
+    private void HandleLootCartStopped()
     {
 
+    }
+    private void HandleLootCartLoaded()
+    {
+        raidManager.OnLootCartLoaded();
     }
 
     private void HandleTroopsBeginEscape()

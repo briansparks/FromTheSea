@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class InteractableLabelView : AbstractLabelView
 {
-    public string EventToEmitForInteraction;
+    [SerializeField]
+    protected string eventToEmitForInteraction;
     protected override float CULLING_DISTANCE { get; } = 5.0f;
 
     private void Update()
@@ -18,8 +19,8 @@ public class InteractableLabelView : AbstractLabelView
     {
         if (Input.GetKeyDown("e"))
         {
-            EventManager.TriggerEvent(EventToEmitForInteraction);
-            Debug.Log($"Firing {EventToEmitForInteraction} event");
+            EventManager.TriggerEvent(eventToEmitForInteraction);
+            Debug.Log($"Firing {eventToEmitForInteraction} event");
         }
     }
 }

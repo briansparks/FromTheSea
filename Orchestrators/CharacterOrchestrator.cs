@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 public class CharacterOrchestrator : MonoBehaviour
@@ -9,6 +10,9 @@ public class CharacterOrchestrator : MonoBehaviour
     {
         var spawnCharacterAction = new UnityAction<CharacterSpawnRequest>((spawnRequest) => HandleCharacterSpawnRequest(spawnRequest));
         EventManager.StartListening("SpawnCharacter", spawnCharacterAction);
+
+        var spawnCharacterPreviewAction = new UnityAction<CharacterSpawnRequest>((spawnRequest) => HandleCharacterPreviewSpawnRequest(spawnRequest));
+        EventManager.StartListening("SpawnCharacterPreview", spawnCharacterPreviewAction);
 
         var spawnRaidCharacterAction = new UnityAction<ActiveRaidCharacterSpawnRequest>((spawnRequest) => HandleActiveRaidCharacterSpawnRequest(spawnRequest));
         EventManager.StartListening("SpawnActiveRaidCharacter", spawnRaidCharacterAction);
@@ -26,6 +30,16 @@ public class CharacterOrchestrator : MonoBehaviour
         CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);
     }
 
+    private void HandleCharacterPreviewSpawnRequest(CharacterSpawnRequest spawnRequest)
+    {
+        var success = CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);
+
+        if (success)
+        {
+            npcController.View.DisableNavigation();
+            npcController.View.DisablePhysics();
+        }
+    }
     private void HandleActiveRaidCharacterSpawnRequest(ActiveRaidCharacterSpawnRequest spawnRequest)
     {
         var successfullySpawnedCharacter = CharacterManager.TryInstantiateCharacter(spawnRequest, out var npcController);

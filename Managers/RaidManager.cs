@@ -1,11 +1,22 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RaidManager : MonoBehaviour, IManager
 {
     public BoatSpawnPosition BoatSpawnPosition;
     public string PathToBoatPrefabs = "Boats/";
+    public string DockMessageOnLootCartLoaded = "Press [e] to enter ship";
+    public string EventToEmitOnPlayerEnteredShip = "PlayerEnteredShip";
+    
+    [SerializeField]
+    private float pathToDockDuration;
+
+    [SerializeField]
+    private float pathToEscapeDuration;
+
+    private IPlayerView playerView;
 
     private bool playerHasExitedShip;
 
@@ -18,10 +29,19 @@ public class RaidManager : MonoBehaviour, IManager
     [SerializeField]
     private CharacterManager characterManager;
 
+    [SerializeField]
+    private LootCartView lootCartView;
+
+    [SerializeField]
+    private LootCartPath lootCartPath;
+
     private BoatView boatView;
 
     private DOTweenPath pathToDock;
     private DOTweenPath pathToEscape;
+
+    private LootCartPathNode currentLootCartPathNodeDestination;
+    private DockLabelView dockLabelView;
 
     GameObject dockPortObj;
 
@@ -30,14 +50,25 @@ public class RaidManager : MonoBehaviour, IManager
     {
         var currentSave = gameDataManager.GetCurrentlyLoadedSave();
 
-        boatView = SpawnActiveBoatInScene();
-        boatView.InitializeForRaid();
+        //boatView = SpawnActiveBoatInScene();
 
-        SpawnBoatTroops(boatView, currentSave.ActiveRaid.TroopAssignments);
+        boatView = GameObject.FindObjectOfType<BoatView>();
+
+        boatView.InitializeForRaid(pathToDockDuration);
+
+        //SpawnBoatTroops(boatView, currentSave.ActiveRaid.TroopAssignments);
 
         pathToDock = GameObject.FindObjectOfType<PathToDock>().GetComponent<DOTweenPath>();
         pathToEscape = GameObject.FindObjectOfType<PathToEscape>().GetComponent<DOTweenPath>();
         dockPortObj = GameObject.FindObjectOfType<DockingPort>().gameObject;
+
+        currentLootCartPathNodeDestination = lootCartPath.GetPathNodes().First(n => n.PathType == LootCartPathType.Start);
+
+        dockLabelView = dockPortObj.GetComponentInChildren<DockLabelView>();
+        playerView = GameObject.FindGameObjectWithTag(Constants.PLAYER_TAG).GetComponent<IPlayerView>();
+
+        //TODO: testing
+        OnLootCartPushed();
 
         //StartRaid();
     }
@@ -78,7 +109,7 @@ public class RaidManager : MonoBehaviour, IManager
 
     private void StartRaid()
     {
-        boatView.BeginPath(pathToDock);
+        boatView.BeginPath(pathToDock, pathToDockDuration);
         //boatView.UpdateCurrentAction(() => boatView.LookAtNextWaypoint());
     }
 
@@ -89,30 +120,83 @@ public class RaidManager : MonoBehaviour, IManager
 
         boatView.UpdateCurrentAction(() => boatView.DockBoat(endOfDockPoint.gameObject, boatLookAtPoint.gameObject));
     }
+
+    public void OnLootCartPushed()
+    {
+        lootCartView.OnCartPush(currentLootCartPathNodeDestination.transform.position);
+    }
+
+    public void OnPlayerEnterShip()
+    {
+        var foundOpenSeat = boatView.TryFindNextOpenSeat(out var seatView);
+
+        if (foundOpenSeat)
+        {
+            playerView.AssignedSeat = seatView.gameObject;
+            playerView.SitDownOnSeat();
+
+            dockLabelView.enabled = false;
+        }
+        else
+        {
+            Debug.LogError($"Unable to find open seat for player!", this);
+        }
+
+        boatView.BeginPath(pathToEscape, pathToEscapeDuration);
+    }
+    public void OnLootCartReachedDestination()
+    {
+        currentLootCartPathNodeDestination = currentLootCartPathNodeDestination.NextNode;
+
+        if (currentLootCartPathNodeDestination == null)
+        {
+            // We are at the end of the path, load it into boat, and start the escape
+            EventManager.TriggerEvent("LootCartLoaded");
+        }
+        else
+        {
+            Debug.Log("Moving to next loot cart path node...");
+            lootCartView.OnCartPush(currentLootCartPathNodeDestination.transform.position);
+        }
+    }
+
+    public void OnLootCartStopped()
+    {
+        lootCartView.OnCartStopped();
+    }
     public void OnBoatDocked()
     {
     }
 
     public void OnLootCartLoaded()
     {
+        var loot = lootCartView.GetComponentInChildren<Loot>();
+        loot.transform.SetParent(boatView.gameObject.transform);
 
+        GameObject.Destroy(lootCartView.gameObject);
+
+        var lootPosition = boatView.GetComponentInChildren<ShipLootPosition>();
+        loot.transform.position = lootPosition.transform.position;
+
+        dockLabelView.UpdateText(DockMessageOnLootCartLoaded);
+        dockLabelView.UpdateEventToEmit(EventToEmitOnPlayerEnteredShip);
+        dockLabelView.enabled = true;
     }
 
     public void OnExitShip()
     {
         var player = GameObject.FindGameObjectWithTag(Constants.PLAYER_TAG);
         var shipExitPoint = dockPortObj.GetComponentInChildren<ShipExitPoint>();
-        var labelView = dockPortObj.GetComponentInChildren<DockLabelView>();
 
         characterManager.MoveCharacterToPosition(shipExitPoint.transform.position, player.gameObject);
 
-        labelView.UpdateTextOnShipExit();
+        dockLabelView.enabled = false;
         playerHasExitedShip = true;
     }
-    public void OnBoatBoardedForEscape()
-    {
-        boatView.UpdateCurrentAction(() => boatView.BeginPath(pathToEscape));
-    }
+    //public void OnBoatBoardedForEscape()
+    //{
+    //    boatView.UpdateCurrentAction(() => boatView.BeginPath(pathToEscape, pathToEscapeDuration));
+    //}
     public void OnAttackersEscaped()
     {
 

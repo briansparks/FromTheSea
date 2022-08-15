@@ -1,7 +1,12 @@
 public class DockLabelView : InteractableLabelView
 {
-    public void UpdateTextOnShipExit()
+    public void UpdateText(string message)
     {
-        SetLabelText("Press [e] to enter ship");
+        SetLabelText(message);
+    }
+
+    public void UpdateEventToEmit(string evnt)
+    {
+        eventToEmitForInteraction = evnt;
     }
 }

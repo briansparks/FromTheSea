@@ -1,10 +1,9 @@
 using UnityEngine;
-public interface IPlayerView
+public interface IPlayerView : ICharacterView
 {
-    GameObject Instance { get; set; }
     bool IsAimingRangedWeapon { get; set; }
 }
-public class PlayerView : MonoBehaviour, IPlayerView
+public class PlayerView : AbstractCharacterView, IPlayerView
 {
     public GameObject MainMeleeWeapon;
     public GameObject Shield;
@@ -19,17 +18,13 @@ public class PlayerView : MonoBehaviour, IPlayerView
     public bool IsAimingRangedWeapon { get; set; }
     public GameObject DialogTarget { get; set; }
     public CameraFollow CameraFollow { get; set; }
-    public GameObject Instance { get; set; }
 
-    private Animator anim;
     private RightHand rightHand;
     private StringBoneParentLocation stringBoneParentLocation;
 
     // Use this for initialization
     void Start()
     {
-        Instance = gameObject;
-        anim = gameObject.GetComponent<Animator>();
         rightHand = gameObject.GetComponentInChildren<RightHand>();
         stringBoneParentLocation = gameObject.GetComponentInChildren<StringBoneParentLocation>();
 
@@ -64,18 +59,18 @@ public class PlayerView : MonoBehaviour, IPlayerView
         //TODO: need to make sure none of wasd are still down
         if (Input.GetKeyUp("w") || Input.GetKeyUp("a") || Input.GetKeyUp("s") || Input.GetKeyUp("d"))
         {
-            anim.SetBool("IsWalking", false);
+            animator.SetBool("IsWalking", false);
         }
 
         if (Input.GetKeyDown("w") || Input.GetKeyDown("a") || Input.GetKeyDown("s") || Input.GetKeyDown("d"))
         {
-            anim.SetBool("IsWalking", true);
+            animator.SetBool("IsWalking", true);
         }
 
         // left mouse button
         if (Input.GetMouseButtonDown(0))
         {
-            anim.SetBool("IsAiming", true);
+            animator.SetBool("IsAiming", true);
             
             IsAimingRangedWeapon = true;
 
@@ -90,8 +85,8 @@ public class PlayerView : MonoBehaviour, IPlayerView
             drawnArrow.transform.SetParent(null);
 
             BowView.ReleaseArrow(drawnArrow);
-            anim.SetTrigger("ReleaseArrow");
-            anim.SetBool("IsAiming", false);
+            animator.SetTrigger("ReleaseArrow");
+            animator.SetBool("IsAiming", false);
 
             BowView.ResetStringBoneParent();
         }
@@ -99,8 +94,8 @@ public class PlayerView : MonoBehaviour, IPlayerView
         // left mouse button
         if (Input.GetMouseButtonDown(1))
         {
-            anim.SetTrigger("AimCancelled");
-            anim.SetBool("IsAiming", false);
+            animator.SetTrigger("AimCancelled");
+            animator.SetBool("IsAiming", false);
             BowView.ResetStringBoneParent();
             BowView.CancelDraw();
             IsAimingRangedWeapon = false;
@@ -112,7 +107,7 @@ public class PlayerView : MonoBehaviour, IPlayerView
         }
     }
 
-    #region Animation Events
+    #region animatoration Events
     public void ArrowLoaded()
     {
         BowView.ParentStringBoneToObject(stringBoneParentLocation.gameObject);

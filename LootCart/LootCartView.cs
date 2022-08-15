@@ -1,37 +1,56 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class LootCartView : MonoBehaviour
 {
     private Axle axle;
 
     private bool isBeingPushed;
-    private float wheelRotationSpeed = 10.0f;
+    private float wheelRotationSpeed = 15.0f;
+    private NavMeshAgent navMeshAgent;
+
+    private bool awaitingNextDestination;
 
     // Start is called before the first frame update
     void Start()
     {
         axle = gameObject.GetComponentInChildren<Axle>();
-
-        //TODO: testing
-        isBeingPushed = true;
+        navMeshAgent = gameObject.GetComponentInChildren<NavMeshAgent>();
     }
 
-    // Update is called once per framewd
     void Update()
     {
         if (isBeingPushed)
         {
+            HandleMoveTowardsDestination();
             RotateWheels();
         }
     }
 
     private void RotateWheels()
     {
-        axle.transform.Rotate(Vector3.left * (wheelRotationSpeed * Time.deltaTime));
+        axle.transform.Rotate(Vector3.right * (wheelRotationSpeed * Time.deltaTime));
     }
 
-    private void MoveCartTowardsBoat()
+    private void HandleMoveTowardsDestination()
     {
+        if (!awaitingNextDestination && Vector3.Distance(gameObject.transform.position, navMeshAgent.destination) < 1.0f)
+        {
+            Debug.Log("Triggering LootCartReachedDestination");
+            awaitingNextDestination = true;
+            EventManager.TriggerEvent("LootCartReachedDestination");
+        }
+    }
+    public void OnCartPush(Vector3 targetPos)
+    {
+        isBeingPushed = true;
+        awaitingNextDestination = false;
+        navMeshAgent.SetDestination(targetPos);
+    }
 
+    public void OnCartStopped()
+    {
+        isBeingPushed = false;
+        navMeshAgent.isStopped = true;
     }
 }

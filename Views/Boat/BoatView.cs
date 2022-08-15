@@ -27,7 +27,7 @@ public class BoatView : MonoBehaviour
         rb = gameObject.GetComponent<Rigidbody>();
     }
 
-    public void InitializeForRaid()
+    public void InitializeForRaid(float pathToDockDuration)
     {
         Initialize();
 
@@ -40,7 +40,7 @@ public class BoatView : MonoBehaviour
 
         if (pathToDock != null)
         {
-            BeginPath(pathToDock);
+            BeginPath(pathToDock, pathToDockDuration);
             UpdateCurrentAction(() => HandleDockPath(boatHead.gameObject, endOfDockPoint.gameObject));
         }
     }
@@ -52,14 +52,14 @@ public class BoatView : MonoBehaviour
         }
     }
 
-    public void BeginPath(DOTweenPath doTweenPath)
+    public void BeginPath(DOTweenPath doTweenPath, float duration)
     {
-        rb.DOPath(doTweenPath.path.wps, 50.0f, PathType.CatmullRom).OnWaypointChange((waypointIndex) => OnWaypointChange(waypointIndex, doTweenPath));
+        rb.DOPath(doTweenPath.path.wps, duration, PathType.CatmullRom).OnWaypointChange((waypointIndex) => OnWaypointChange(waypointIndex, doTweenPath));
     }
 
     public void HandleDockPath(GameObject boatHeadObject, GameObject endOfDockPointObj)
     {
-        //LookAtNextWaypoint();
+        LookAtNextWaypoint();
 
         if (!reachedDock)
         {
