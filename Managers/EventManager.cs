@@ -13,6 +13,7 @@ public class EventManager : MonoBehaviour, IManager
     private Dictionary<string, UnityEvent<ActiveRaidCharacterSpawnRequest>> activeRaidCharacterSpawnRequestDictionary;
     private Dictionary<string, UnityEvent<Guid>> guidDictionary;
     private Dictionary<string, UnityEvent<RaidLocationDto>> raidLocationDtoDictionary;
+    private Dictionary<string, UnityEvent<ResourceData>> resourceDataDictionary;
 
     private static EventManager eventManager;
 
@@ -26,6 +27,7 @@ public class EventManager : MonoBehaviour, IManager
         guidDictionary = new Dictionary<string, UnityEvent<Guid>>();
         activeRaidCharacterSpawnRequestDictionary = new Dictionary<string, UnityEvent<ActiveRaidCharacterSpawnRequest>>();
         raidLocationDtoDictionary = new Dictionary<string, UnityEvent<RaidLocationDto>>();
+        resourceDataDictionary = new Dictionary<string, UnityEvent<ResourceData>>();
     }
 
     public static EventManager instance
@@ -75,6 +77,20 @@ public class EventManager : MonoBehaviour, IManager
             thisEvent = new RaidLocationDtoUnityEvent();
             thisEvent.AddListener(listener);
             instance.raidLocationDtoDictionary.Add(eventName, thisEvent);
+        }
+    }
+
+    public static void StartListening(string eventName, UnityAction<ResourceData> listener)
+    {
+        if (instance.resourceDataDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new ResourceDataUnityEvent();
+            thisEvent.AddListener(listener);
+            instance.resourceDataDictionary.Add(eventName, thisEvent);
         }
     }
     public static void StartListening(string eventName, UnityAction<Guid> listener)
@@ -217,6 +233,14 @@ public class EventManager : MonoBehaviour, IManager
             thisEvent.Invoke(param);
         }
     }
+
+    public static void TriggerEvent(string eventName, ResourceData param)
+    {
+        if (instance.resourceDataDictionary.TryGetValue(eventName, out var thisEvent))
+        {
+            thisEvent.Invoke(param);
+        }
+    }
     public static void TriggerEvent(string eventName, int param)
     {
         if (instance.intEventDictionary.TryGetValue(eventName, out var thisEvent))
@@ -293,6 +317,12 @@ public class ActiveRaidCharacterSpawnRequestUnityEvent : UnityEvent<ActiveRaidCh
 
 [System.Serializable]
 public class RaidLocationDtoUnityEvent : UnityEvent<RaidLocationDto>
+{
+
+}
+
+[System.Serializable]
+public class ResourceDataUnityEvent : UnityEvent<ResourceData>
 {
 
 }

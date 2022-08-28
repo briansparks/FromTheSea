@@ -5,12 +5,17 @@ using UnityEngine;
 
 public class CharacterManager : MonoBehaviour, IManager
 {
-    public GameDataManager GameDataManager;
     public string PathToCharacterPrefabs = "Characters/Prefabs";
+
+    [SerializeField]
+    private GameDataManager gameDataManager;
+
+    [SerializeField]
+    private EquipmentAssignmentManager equipmentAssignmentManager;
 
     private List<INPCController> spawnedCharacterControllers;
 
-    // This will maintain the list of troops from the save file, as well as any that have been added since loaded
+    // This will maintain the list of troops from the save file, as well as any that have been added/updated since loaded
     private List<CharacterData> availableTroopData;
 
     private List<TroopAssignmentData> activeRaidTroopAssignments;
@@ -19,7 +24,7 @@ public class CharacterManager : MonoBehaviour, IManager
         spawnedCharacterControllers = new List<INPCController>();
         activeRaidTroopAssignments = new List<TroopAssignmentData>();
 
-        var savedGame = GameDataManager.GetCurrentlyLoadedSave();
+        var savedGame = gameDataManager.GetCurrentlyLoadedSave();
 
         if (savedGame != null)
         {
@@ -42,6 +47,21 @@ public class CharacterManager : MonoBehaviour, IManager
         return availableTroopData;
     }
 
+    public bool TryUpdateTroopData(CharacterData characterData)
+    {
+
+        var troopIndex = availableTroopData.FindIndex(t => t.Id == characterData.Id);
+
+        if (troopIndex != -1)
+        {
+            availableTroopData[troopIndex] = characterData;
+            return true;
+        }
+
+        Debug.LogWarning($"Troop not found for ID {characterData.Id}!");
+        return false;
+    }
+
     public bool TryGetCharacterDataById(Guid troopId, out CharacterData characterData)
     {
         try
@@ -52,6 +72,22 @@ public class CharacterManager : MonoBehaviour, IManager
         catch (Exception ex)
         {
             characterData = null;
+            Debug.LogError($"Failed to find character {troopId} in available troop data! {ex}", this);
+            return false;
+        }
+    }
+
+    public bool TryGetCharacterInstanceById(Guid troopId, out GameObject characterInstance)
+    {
+        try
+        {
+            var npcController = spawnedCharacterControllers.First(c => c.Model.Id == troopId);
+            characterInstance = npcController.View.Instance;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            characterInstance = null;
             Debug.LogError($"Failed to find character {troopId} in available troop data! {ex}", this);
             return false;
         }
@@ -72,6 +108,16 @@ public class CharacterManager : MonoBehaviour, IManager
             );
            
             spawnedCharacterControllers.Add(npcController);
+
+            if (characterSpawnRequest.CharacterData.EquipmentLoadoutItems != null)
+            {
+                var success = equipmentAssignmentManager.TryEquipItems(characterSpawnRequest.CharacterData.EquipmentLoadoutItems, npcController.View.Instance, out var equipmentLoadoutDict);
+
+                if (success)
+                {
+                    npcController.View.EquipmentLoadoutDictionary = equipmentLoadoutDict;
+                }
+            }
 
             return true;
         }

@@ -1,17 +1,21 @@
 using UnityEngine;
 
-public class WeaponItem : AbstractEquipmentItem
+public class HelmetItem : ArmorItem
 {
     [Header("Item Placement Values")]
     public Vector3 PlacedPosition;
     public Vector3 PlacedRotation;
     public Vector3 PlacedScale;
 
-    [Header("Item Rating")]
-    public int AttackRating;
-
     public override void AttachToRig(GameObject equipmentItem, GameObject targetObject)
     {
+        var hair = targetObject.GetComponentInChildren<Hair>();
+
+        if (hair != null)
+        {
+            hair.gameObject.SetActive(false);
+        }
+
         equipmentItem.transform.SetParent(targetObject.transform);
 
         equipmentItem.transform.localPosition = PlacedPosition;

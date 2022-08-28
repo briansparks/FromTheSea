@@ -10,18 +10,21 @@ public class EquipmentSlot : MonoBehaviour
     private TextMeshProUGUI header;
 
     [SerializeField]
-    private RawImage slotIcon; 
+    private RawImage slotIcon;
+
+    [SerializeField]
+    private RawImage currentlyEquippedIcon;
 
     public EquipmentSlotType EquipmentSlotType;
-
-    public void UpdateHeader(string text)
-    {
-        header.text = text;
-    }
 
     public void UpdateSlotSelection(AbstractEquipmentItem equipmentItem)
     {
         slotIcon.texture = equipmentItem.IconTexture;
         header.text = equipmentItem.ItemName;
+    }
+
+    public void SetCurrentlyEquippedIconState(bool active)
+    {
+        currentlyEquippedIcon.gameObject.SetActive(active);
     }
 }

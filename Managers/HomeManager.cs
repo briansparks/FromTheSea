@@ -18,7 +18,6 @@ public class HomeManager : MonoBehaviour, IManager
     public Vector3 DrakkarSpawnPosition;
 
     private int currentInGameWeek;
-
     public void Initialize()
     {
         var currentSave = GameDataManager.GetCurrentlyLoadedSave();

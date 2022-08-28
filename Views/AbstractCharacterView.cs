@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,12 +9,15 @@ public interface ICharacterView
     void SitDownOnSeat();
     GameObject AssignedSeat { get; set; }
     GameObject Instance { get; set; }
+
+    Dictionary<EquipmentSlotType, GameObject> EquipmentLoadoutDictionary { get; set; }
 }
 public class AbstractCharacterView : MonoBehaviour, ICharacterView
 {
     public Guid Id { get; set; }
     public GameObject AssignedSeat { get; set; }
     public GameObject Instance { get; set; }
+    public Dictionary<EquipmentSlotType, GameObject> EquipmentLoadoutDictionary { get; set; }
 
     protected Rigidbody rb;
     protected Animator animator;
